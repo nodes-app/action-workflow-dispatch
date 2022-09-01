@@ -1,0 +1,19 @@
+name: Test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Test Action
+        uses: ./
+        with:
+          workflow: example.yml
+          inputs: |
+            {
+              "message": "Hello, World!"
+            }
+          token: ${{ secrets.GH_ACCESS_TOKEN }}

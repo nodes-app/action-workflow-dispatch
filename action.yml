@@ -1,0 +1,49 @@
+name: Workflow Dispatch
+description: Dispatches a Workflow
+branding:
+  icon: activity
+  color: blue
+
+inputs:
+  workflow:
+    description: Workflow File Name or ID
+    required: true
+  repository:
+    description: GitHub Repository
+    required: true
+    default: ${{ github.repository }}
+  branch:
+    description: Repository Branch
+    required: true
+    default: main
+  inputs:
+    description: Inputs (JSON)
+    required: true
+    default: '{}'
+  token:
+    description: Access Token
+    required: true
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+
+    - shell: bash
+      env:
+        WORKFLOW: ${{ inputs.workflow }}
+        REPOSITORY: ${{ inputs.repository }}
+        BRANCH: ${{ inputs.branch }}
+        INPUTS: ${{ inputs.inputs }}
+        GITHUB_TOKEN: ${{ inputs.token }}
+      run: |
+        data="{\"ref\":\"$BRANCH\"}"
+        if [ "$INPUTS" != '{}' ]; then
+          data=$(echo "$data" | jq -c --argjson inputs "$INPUTS" '.inputs = $inputs')
+        fi
+        curl \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -d "$data" \
+          "https://api.github.com/repos/$REPOSITORY/actions/workflows/$WORKFLOW/dispatches"

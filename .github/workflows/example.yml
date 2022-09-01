@@ -1,0 +1,15 @@
+name: Example
+on: 
+  workflow_dispatch:
+    inputs:
+      message:
+        description: Message to print
+        required: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      
+      - env:
+          MESSAGE: ${{ inputs.message }}
+        run: echo "$MESSAGE"
