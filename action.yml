@@ -38,7 +38,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         data=$(
-          jq -c \
+          jq -c --null-input \
             '
             .ref = env.BRANCH
             | if env.INPUTS == '{}' then . else (
