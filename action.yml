@@ -37,10 +37,15 @@ runs:
         INPUTS: ${{ inputs.inputs }}
         GITHUB_TOKEN: ${{ inputs.token }}
       run: |
-        data="{\"ref\":\"$BRANCH\"}"
-        if [ "$INPUTS" != '{}' ]; then
-          data=$(echo "$data" | jq -c --argjson inputs "$INPUTS" '.inputs = $inputs')
-        fi
+        data=$(
+          jq -c \
+            '
+            .ref = env.BRANCH
+            | if env.INPUTS == '{}' then . else (
+              .inputs = (env.INPUTS | fromjson)
+            ) end
+            '
+        )
         curl \
           -X POST \
           -H "Accept: application/vnd.github+json" \
